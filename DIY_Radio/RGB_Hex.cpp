@@ -62,7 +62,17 @@ void RGBHex::updateRotation(){
     }
     else{
         if (isBlinking){
-
+            if(ison){
+                ison = false;
+                currentColorsArray = nullColors;
+            }
+            else{
+                ison = true;
+                currentColorsArray = colorsArray;
+            }
+        }
+        else{
+            currentColorsArray = colorsArray;
         }
         // check blinking
     }

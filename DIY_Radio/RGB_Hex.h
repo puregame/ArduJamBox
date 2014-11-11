@@ -29,9 +29,11 @@ class RGBHex
 private:
     bool isRotating;
     bool isBlinking;
+    bool ison;
     char rotation;
     RotationType rotationDirection;
     char colorsArray[4][3];
+    char currentColorsArray[4][3];
     char nullColors[4][3];
 
     char n_colors;
