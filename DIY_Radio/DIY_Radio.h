@@ -19,5 +19,9 @@ enum Mode{
 #define bluetoothFET 6
 #define speakerFET   7
 #define ledPin       13
+#define LED_PIN_MASK   B0010000
+#define LED_SWITCH PORTB ^= LED_PIN_MASK;
+#define LED_ON  PORTB |= LED_PIN_MASK;
+#define LED_OFF PORTB &= !LED_PIN_MASK
 
 #endif

@@ -21,6 +21,9 @@ long loopnum = 0;
 byte old_signal_level=1;
 byte signal_level=0;
 
+//LED variables
+volatile int count = 0;
+
 
 //Interrupt Service Routines
 void timerIsr() {
@@ -29,6 +32,9 @@ void timerIsr() {
 
 isr(TIMER2_COMPA_vect){
   ledArray.updateRotation();
+  count = count>100?0: count+1;
+  if (count == 0)
+    LED_SWITCH
 }
 
 void setup() {
@@ -88,4 +94,27 @@ void loop() {
         break;
     }
   }    
+}
+
+void cycleMode(){
+  switch (currentMode) {
+      case standby:
+        currentMode = radio;
+        // turn amplifier pn
+        radio.unstandby();// turn radio on
+        break;
+      case radio:
+        currentMode = bluetooth;
+        radio.standby();
+        // turn bluetooth on
+        break;
+      case bluetooth:
+        currentMode = aux;
+        // turn bluetooth off, l
+        break;
+      case aux:
+        currentMode = standby;
+        // turn amplifier off
+        break;
+  }
 }
