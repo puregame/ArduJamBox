@@ -6,7 +6,6 @@
 class TEA5767
 {
 private:
-	int lolThisIsPrivate;
 	unsigned char TEA5767_buffer[5];
 	unsigned char fromRadioChip[5];
 	int frequency;
@@ -94,6 +93,7 @@ extern TEA5767 TEA5767ext;
     #define TEA5767_WBYTE5_DEEMPHASISTIMECONST   (1<<6)  // 1 = DTC is 75µs, 0 = 50µs
 /*=========================================================================*/
 
+/*==============READ BYTES============================*/
 
 /*=========================================================================
     READ BYTE 1
