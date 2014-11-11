@@ -5,8 +5,8 @@
 
 
 // Pinout:
-  // # A0: 
-  // # A1: 
+  // # A0: Rotory A
+  // # A1: Rotory B
   // # A2: Button on swithcer
   // # A4: DTA - Red on pcb
   // # A5: CLK - back on pcb
@@ -14,9 +14,10 @@
 #define radioFET     5
 #define bluetoothFET 6
 #define speakerFET   7
-#define ledPin 13
+#define ledPin       13
 
 TEA5767 radio;
+RGBHex  ledArray;
 
 ClickEncoder *encoder;
 int16_t last,frequency = 9910;
@@ -33,10 +34,9 @@ void timerIsr() {
 }
 
 isr(TIMER2_COMPA_vect){
-  rotationPos = rotationPos>10 ? 0 : rotationPos + 1; // increment rotation position from 0 to 11
-  solid = solid ^ B00000010;
-
+  ledArray.updateRotation();
 }
+
 
 void setup() {
   Serial.begin(9600);
@@ -85,7 +85,7 @@ void loop() {
     Serial.print("New frequency: ");
     Serial.println(frequency);
     radio.SetFrequency(frequency);
-  }  
+  }
   
   ClickEncoder::Button b = encoder->getButton();
   if (b != ClickEncoder::Open) {

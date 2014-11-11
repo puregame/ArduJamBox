@@ -24,8 +24,6 @@ public:
 	void setFrequency(int infreq) {frequency = infreq;};
 };
 
-extern TEA5767 TEA5767ext;
-
 
 #define TEA5767_FMBANDSTART_US_EUROPE            (87500000) // 87.5 MHz to 108 MHz
 #define TEA5767_FMBANDSTART_JAPAN                (76000000) // 76 MHz to 91 MHz plus TV audio at 108 MHz

@@ -1,5 +1,3 @@
-// CustomHexTester.ino
-
 void setup() {
 	Wire.begin();
 	Serial.begin(9600)
@@ -33,7 +31,7 @@ void loop() {
     }
 
     toTransmit = ((colors << 6) | (ledconfig << 4) | ledToLight);
-
+    writeData();
 }
 
 void writeData(){
