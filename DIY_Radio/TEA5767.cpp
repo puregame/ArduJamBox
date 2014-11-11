@@ -14,6 +14,16 @@ TEA5767::TEA5767(){
 	TEA5767_buffer[4] = 0x00;
 }
 
+void TEA5767::standby(){
+	TEA5767_buffer[3] |= TEA5767_WBYTE4_STANDBY; // turn standby bit on and nothing else
+	WriteData();
+}
+
+void TEA5767::unstandby(){
+	TEA5767_buffer[3] &= !TEA5767_WBYTE4_STANDBY; //turn only standby bit off
+	WriteData();
+}
+
 void TEA5767::SetFrequency(int infreq){
 	frequency = infreq;
 	unsigned int frequencyB  = 4 * (frequency * 10000 + 225000) / 32768;

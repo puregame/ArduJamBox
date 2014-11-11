@@ -14,6 +14,8 @@ private:
 public:
 	TEA5767();
 	void SetFrequency(int infreq);
+    void standby();
+    void unstandby();
 	void WriteData();
 	char ReadData();
 	
