@@ -3,7 +3,7 @@
 
 #define DATA_SIZE 5
 
-enum RotationTypes
+enum RotationType
 {
     none = 0,
     CW = 1,
@@ -28,9 +28,11 @@ class RGBHex
 {
 private:
     bool isRotating;
+    bool isBlinking;
     char rotation;
-    RotationTypes RotationDirection;
+    RotationType rotationDirection;
     char colorsArray[4][3];
+    char nullColors[4][3];
 
     char n_colors;
     char ledconfig;
@@ -41,8 +43,12 @@ public:
     void setColors();
     void setPrimaryColor(char r, char g, char b);
     void setSecondaryColor(char r, char g, char b);
+
+    void setRotation(RotationType direction) {rotationDirection = direction;};
     void setRotating() {isRotating = true;};
-    void setStopped() {isRotating = false;};
+    void setStopped()  {isRotating = false;};
+    void setBlinking() {isBlinking = true;};
+    void setSolid() {isBlinking = false;};
 };
 
 #endif

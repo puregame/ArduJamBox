@@ -290,10 +290,15 @@ void receiveEvent(int howMany)
 	colors   = (data >> 6) & 0x3;
 	ledconfig= (data >> 4) & 0x3;
 	rotation = (data     ) & 0xF;
-	int beginPos=Wire.read();
-	availableBytes=Wire.available();
-	for(int i=beginPos; i<beginPos+availableBytes; i++)
-		RGB[i/3][i%3]=Wire.read();
+    for(int i=0; i<colors; i++){
+        for(int j=0; j<3; j++){
+            RGB[i][j] = Wire.read();
+        }
+    }
+	// int beginPos=Wire.read();
+	// availableBytes=Wire.available();
+	// for(int i=beginPos; i<beginPos+availableBytes; i++)
+	// 	RGB[i/3][i%3]=Wire.read();
 }
 
 void scan(){

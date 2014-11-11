@@ -37,7 +37,6 @@ isr(TIMER2_COMPA_vect){
   ledArray.updateRotation();
 }
 
-
 void setup() {
   Serial.begin(9600);
   encoder = new ClickEncoder(A1, A0, A2);
@@ -48,18 +47,7 @@ void setup() {
   
   last = -1;
 
-  // setup timer2 for interrupt to blink or rotate
-  cli(); // disable global interrupts 
-  TCCR2B = 0; // reset control regesters
-  TCCR2A = 0;
-
-  OCR2A = 0xFF;
-  TCCR2B |= (1 << WGM22)
-    TCCR2B |= (1 << CS22); // timer2 1024 prescalar
-    TCCR2B |= (1 << CS21);
-  TCCR2B |= (1 << CS20);
-  TIMSK2 |= (1 << OCIE2A);
-  sei(); // enable global interrupts
+ 
 }
 
 void loop() {  
