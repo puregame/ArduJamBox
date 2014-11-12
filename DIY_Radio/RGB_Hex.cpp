@@ -33,26 +33,13 @@ void RGBHex::setSecondaryColor(char r, char g, char b){
     colorsArray[1][1] = g;
     colorsArray[1][2] = b;
 }
-void RGBHex::setupTimer2(){ /// 
-    // setup timer2 for interrupt to blink or rotate
-    cli(); // disable global interrupts 
-    TCCR2B = 0; // reset control regesters
-    TCCR2A = 0;
 
-    OCR2A = 0xFF;
-    TCCR2B |= (1 << WGM22)
-    TCCR2B |= (1 << CS22); // timer2 1024 prescalar
-    TCCR2B |= (1 << CS21);
-    TCCR2B |= (1 << CS20);
-    TIMSK2 |= (1 << OCIE2A);
-    sei(); // enable global interrupts
-}
 /* // the following function should be placed in the mian .ino file to run the updateRotation fn every time the vector goes off
 isr(TIMER2_COMPA_vect){
   ledArray.updateRotation();
 }
 */
-void RGBHex::updateRotation(){
+void RGBHex::updateRotation(){ // update rotation or blink
 
     if (RotationDirection == CW){
         rotation--;

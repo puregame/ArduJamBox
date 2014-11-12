@@ -46,6 +46,8 @@ public:
     void setPrimaryColor(char r, char g, char b);
     void setSecondaryColor(char r, char g, char b);
 
+    void on() {ison = true; writeData();};
+    void off(){ison = false; writeData();};
     void setRotation(RotationType direction) {rotationDirection = direction;};
     void setRotating() {isRotating = true;};
     void setStopped()  {isRotating = false;};

@@ -1,5 +1,7 @@
 #include <Wire.h>
 
+#define ISRTEST
+
 void setup() {
 	Wire.begin();
 	Serial.begin(115200);
@@ -7,7 +9,40 @@ void setup() {
     pinMode(A3, OUTPUT);
     digitalWrite(A2, LOW);
     digitalWrite(A3, HIGH);
+
+    #ifdef ISRTEST
+        cli(); // disable global interrupts 
+    TCCR2B = 0; // reset control regesters
+    TCCR2A = 0;
+
+    OCR2A = 0xFF; // will count all the way up to 255 before tripping the interrupt
+    TCCR2B |= (1 << WGM22)
+    TCCR2B |= (1 << CS22); // timer2 1024 prescalar
+    TCCR2B |= (1 << CS21);
+    TCCR2B |= (1 << CS20);
+    TIMSK2 |= (1 << OCIE2A); // enable output compare interrupts on 2A
+    sei(); // enable global interrupts
+    #endif
 }
+
+#ifdef ISRTEST
+isr(TIMER2_COMPA_vect){ // should happen at ~60 hz (16000000 /1024/256) [clock / prescaler / count]
+    count = count>60?0: count+1;
+    if (count == 0)
+        LED_SWITCH; // switch the LED every second
+        Serial.println("second");
+
+    if (radio.isScanning && count % 10){ // if the radio is scanning, check for end of band and/or found station 6 times per second
+        ledArray.updateRotation();
+        if(radio.checkEnd()) { // if the end of the band has been reached
+            radio.restartScan(); // restart the scan (from top or bottom, TBD by function)
+        }
+        else if (radio.ready){ // if the station has been found (just updated data from the if statement)
+            radio.stopScanning();
+        }
+    }
+}
+#endif
 
 unsigned char colorsArray[4][3] = {{0,0,0},{0,0,0},{0,0,0}};
 char toTransmit = 0;

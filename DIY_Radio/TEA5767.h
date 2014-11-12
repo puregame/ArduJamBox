@@ -11,13 +11,20 @@ private:
 	int frequency;
 	unsigned char signal_level;
 	unsigned char stereo;
+    bool ready;
+    bool bandLimit;
+    bool scanDir;
 public:
+    bool isScanning;
 	TEA5767();
-	void SetFrequency(int infreq);
+	void setFrequency(int infreq);
     void standby();
     void unstandby();
 	void WriteData();
-	char ReadData();
+    void scan(bool direction);
+    void restartScan();
+    bool checkEnd();
+	char readData();
 	
 	unsigned char* getBuffer() {return TEA5767_buffer;};
 	unsigned char getStereo() {return stereo;};
@@ -27,8 +34,8 @@ public:
 };
 
 
-#define TEA5767_FMBANDSTART_US_EUROPE            (87500000) // 87.5 MHz to 108 MHz
-#define TEA5767_FMBANDSTART_JAPAN                (76000000) // 76 MHz to 91 MHz plus TV audio at 108 MHz
+#define TEA5767_FM_BAND_START            (8750) // 87.5 MHz to 108 MHz
+#define TEA5767_FM_BAND_END              (1080)
 
 /*=========================================================================
     I2C ADDRESS/BITS
