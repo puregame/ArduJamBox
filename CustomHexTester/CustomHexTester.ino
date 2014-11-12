@@ -3,6 +3,10 @@
 void setup() {
 	Wire.begin();
 	Serial.begin(115200);
+    pinMode(A2, OUTPUT);
+    pinMode(A3, OUTPUT);
+    digitalWrite(A2, LOW);
+    digitalWrite(A3, HIGH);
 }
 
 unsigned char colorsArray[4][3] = {{0,0,0},{0,0,0},{0,0,0}};
