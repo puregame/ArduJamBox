@@ -24,8 +24,7 @@ enum configDouble
     toptwo
 };
 
-class RGBHex
-{
+class RGBHex{
 private:
     bool isRotating;
     bool isBlinking;

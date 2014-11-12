@@ -1,5 +1,4 @@
 
-
 #include "tea5767.h"
 #include <util/twi.h>
 #include <Arduino.h>
@@ -34,11 +33,6 @@ void RGBHex::setSecondaryColor(char r, char g, char b){
     colorsArray[1][2] = b;
 }
 
-/* // the following function should be placed in the mian .ino file to run the updateRotation fn every time the vector goes off
-isr(TIMER2_COMPA_vect){
-  ledArray.updateRotation();
-}
-*/
 void RGBHex::updateRotation(){ // update rotation or blink
 
     if (RotationDirection == CW){
@@ -61,7 +55,6 @@ void RGBHex::updateRotation(){ // update rotation or blink
         else{
             currentColorsArray = colorsArray;
         }
-        // check blinking
     }
     writeData();
 }

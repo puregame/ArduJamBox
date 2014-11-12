@@ -92,7 +92,7 @@ void oneColor(){
 			writeSingleLED();
 		case 1: // ALL leds are on
 			//enableAllLEDs();
-                    ENABLE_ALL_LEDS
+            ENABLE_ALL_LEDS
 		    analogWrite(r1,RGB[0][0]);
 		    analogWrite(g1,RGB[0][1]);
 		    analogWrite(b1,RGB[0][2]);
@@ -101,7 +101,7 @@ void oneColor(){
 		    analogWrite(b2,RGB[0][2]);
 		    break;
 		case 2: // top two LEDs are on
-DISABLE_ALL_LEDS
+			DISABLE_ALL_LEDS
 			digitalWrite(d1d2, HIGH);
 			analogWrite(r1,RGB[0][0]);
 		    analogWrite(g1,RGB[0][1]);
@@ -205,7 +205,6 @@ void writeSingleLED(){
 			analogWrite(b2, RGB[0][2]);
 			break;
     }
-
 }
 
 void twoColor(){
@@ -286,12 +285,11 @@ void threeColor(){
  ;;
 }
 
-void receiveEvent(int howMany)
-{
-	int data = Wire.read();
-	colors   = (data >> 6) & 0x3;
-	ledconfig= (data >> 4) & 0x3;
-	rotation = (data     ) & 0xF;
+void receiveEvent(int howMany){
+    int data = Wire.read();
+    colors   = (data >> 6) & 0x3;
+    ledconfig= (data >> 4) & 0x3;
+    rotation = (data     ) & 0xF;
     for(int i=0; i<colors; i++){
         for(int j=0; j<3; j++){
             RGB[i][j] = Wire.read();
@@ -299,68 +297,63 @@ void receiveEvent(int howMany)
     }
     Serial.println("\nRecieved Data!");
     Serial.print("\nColors: ");
-		Serial.print(colors);
-		Serial.print("  Config: ");
-                Serial.print(ledconfig);
-		//Serial.print("  Rotation: ");
-		//Serial.print(rotation);
-for(int i=0; i<colors; i++){
+        Serial.print(colors);
+        Serial.print("  Config: ");
+            Serial.print(ledconfig);
+        //Serial.print("  Rotation: ");
+        //Serial.print(rotation);
+    for(int i=0; i<colors; i++){
         for(int j=0; j<3; j++){
             Serial.println(RGB[i][j]);
         }
     }
-	// int beginPos=Wire.read();
-	// availableBytes=Wire.available();
-	// for(int i=beginPos; i<beginPos+availableBytes; i++)
-	// 	RGB[i/3][i%3]=Wire.read();
 }
-
 
 void initPins()
 {  
-  pinMode(b1,OUTPUT);
-  pinMode(r1,OUTPUT);
-  pinMode(g1,OUTPUT);
-  pinMode(b2,OUTPUT);
-  pinMode(r2,OUTPUT);
-  pinMode(g2,OUTPUT);
-  
-  pinMode(d1d2,OUTPUT);
-  pinMode(d3d4,OUTPUT);
-  pinMode(d5d6,OUTPUT);
-  pinMode(d7d8,OUTPUT);
-  pinMode(d9d10,OUTPUT);
-  pinMode(d11d12,OUTPUT);
-  
-  analogWrite(b1,LOW);
-  analogWrite(r1,LOW);
-  analogWrite(g1,LOW);
-  analogWrite(b2,LOW);
-  analogWrite(r2,LOW);
-  analogWrite(g2,LOW);
-  
-  analogWrite(d1d2,LOW);
-  analogWrite(d3d4,LOW);
-  analogWrite(d5d6,LOW);
-  analogWrite(d7d8,LOW);
-  analogWrite(d9d10,LOW);
-  analogWrite(d11d12,LOW);
+    pinMode(b1,OUTPUT);
+    pinMode(r1,OUTPUT);
+    pinMode(g1,OUTPUT);
+    pinMode(b2,OUTPUT);
+    pinMode(r2,OUTPUT);
+    pinMode(g2,OUTPUT);
+
+    pinMode(d1d2,OUTPUT);
+    pinMode(d3d4,OUTPUT);
+    pinMode(d5d6,OUTPUT);
+    pinMode(d7d8,OUTPUT);
+    pinMode(d9d10,OUTPUT);
+    pinMode(d11d12,OUTPUT);
+
+    analogWrite(b1,LOW);
+    analogWrite(r1,LOW);
+    analogWrite(g1,LOW);
+    analogWrite(b2,LOW);
+    analogWrite(r2,LOW);
+    analogWrite(g2,LOW);
+
+    analogWrite(d1d2,LOW);
+    analogWrite(d3d4,LOW);
+    analogWrite(d5d6,LOW);
+    analogWrite(d7d8,LOW);
+    analogWrite(d9d10,LOW);
+    analogWrite(d11d12,LOW);
 }
 
 void enableAllLEDs(){
-  digitalWrite(d1d2,HIGH);
-  digitalWrite(d3d4,HIGH);
-  digitalWrite(d5d6,HIGH);
-  digitalWrite(d7d8,HIGH);
-  digitalWrite(d9d10,HIGH);
-  digitalWrite(d11d12,HIGH);
+    digitalWrite(d1d2,HIGH);
+    digitalWrite(d3d4,HIGH);
+    digitalWrite(d5d6,HIGH);
+    digitalWrite(d7d8,HIGH);
+    digitalWrite(d9d10,HIGH);
+    digitalWrite(d11d12,HIGH);
 }
 
 void disableAllLEDs(){
-  digitalWrite(d1d2,LOW);
-  digitalWrite(d3d4,LOW);
-  digitalWrite(d5d6,LOW);
-  digitalWrite(d7d8,LOW);
-  digitalWrite(d9d10,LOW);
-  digitalWrite(d11d12,LOW);
+    digitalWrite(d1d2,LOW);
+    digitalWrite(d3d4,LOW);
+    digitalWrite(d5d6,LOW);
+    digitalWrite(d7d8,LOW);
+    digitalWrite(d9d10,LOW);
+    digitalWrite(d11d12,LOW);
 }
