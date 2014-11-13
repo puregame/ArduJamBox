@@ -24,7 +24,7 @@ public:
     void scan(bool direction);
     void restartScan();
     bool checkEnd();
-	char readData();
+	void readData();
 	
 	unsigned char* getBuffer() {return TEA5767_buffer;};
 	unsigned char getStereo() {return stereo;};

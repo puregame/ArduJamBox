@@ -24,7 +24,7 @@ enum Mode{
 #define LED_HEX_ID    0x01
 #define TEA5767_ID    0x60
 
-#define LED_PIN_MASK   B00100011
+#define LED_PIN_MASK   B00000001
 #define LED_SWITCH PORTB ^= LED_PIN_MASK;
 #define LED_ON  PORTB |= LED_PIN_MASK;
 #define LED_OFF PORTB &= ~LED_PIN_MASK
