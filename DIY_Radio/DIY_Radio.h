@@ -2,10 +2,10 @@
 #define _DIY_Radio_
 
 enum Mode{
-    standby,
-    radio,
-    bluetooth,
-    aux
+    Standby,
+    Radio,
+    Bluetooth,
+    Aux
 };
 
 // Pinout:
@@ -29,7 +29,7 @@ enum Mode{
 #define on HIGH
 #define ON HIGH
 
-#define LED_PIN_MASK   B0010000
+#define LED_PIN_MASK   B00000001
 #define LED_SWITCH PORTB ^= LED_PIN_MASK;
 #define LED_ON  PORTB |= LED_PIN_MASK;
 #define LED_OFF PORTB &= ~LED_PIN_MASK;

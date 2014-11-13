@@ -17,12 +17,12 @@ TEA5767::TEA5767(){
 
 void TEA5767::standby(){
 	TEA5767_buffer[3] |= TEA5767_WBYTE4_STANDBY; // turn standby bit on and nothing else
-	WriteData();
+	writeData();
 }
 
 void TEA5767::unstandby(){
 	TEA5767_buffer[3] &= !TEA5767_WBYTE4_STANDBY; //turn only standby bit off
-	WriteData();
+	writeData();
 }
 
 void TEA5767::scan(bool direction){
@@ -31,13 +31,10 @@ void TEA5767::scan(bool direction){
 	TEA5767_buffer[0] = TEA5767_WBYTE1_SEARCHMODE | (fromRadioChip[0] & 0x3F); // combine serachmode bit and current upper pll bits
 	TEA5767_buffer[1] = fromRadioChip[1];
 	// set search level to mid, direction based on the input direction (0-down, 1-up), stoplevel mid, set HLSI big
-	TEA5767_buffer[2] = (scanDir << 7) | TEA5767_WBYTE3_SEARCHSTOPLEVEL_MID | TEA5767_WBYTE3_HLSI;
-	TEA5767_buffer[3] = TEA5767_buffer; // don't change this big, nothing special to cheange
+	TEA5767_buffer[2] = (scanDir << 7) | TEA5767_WBYTE3_SEARCHSTOPLEVEL_HIGH | TEA5767_WBYTE3_HLSI;
+	TEA5767_buffer[3] = TEA5767_buffer[3]; // don't change this big, nothing special to cheange
 	TEA5767_buffer[4] = 0x00;
 	writeData();
-}
-void TEA5767::stopScanning(){
-	isScanning = false;
 }
 
 void TEA5767::setFrequency(int infreq){
@@ -46,10 +43,11 @@ void TEA5767::setFrequency(int infreq){
 	TEA5767_buffer[0] = frequencyB >> 8 & (TEA5767_buffer[0] | 0x3F); 
 	// this should conserve the mute and Search mode settings
 	TEA5767_buffer[1] = frequencyB & 0xFF;
-	WriteData();
+	writeData();
 }
-char TEA5767::readData(){
+void TEA5767::readData(){
 	Wire.requestFrom(0x60, 5);
+	unsigned long freqA;
 	if (Wire.available()){
 		for(int i = 0; i <DATA_SIZE; i++){
 			fromRadioChip[i] = Wire.read();
@@ -58,11 +56,18 @@ char TEA5767::readData(){
 		signal_level= (fromRadioChip[3] & TEA5767_RBYTE4_ADCLEVELOUTPUTMASK) >> 4;
 		bandLimit 	= (fromRadioChip[0] & TEA5767_RBYTE1_BANDLIMITFLAG) 	 >> 6;
 		ready 		= (fromRadioChip[0] & TEA5767_RBYTE1_READYFLAG) 		 >> 7;
-		return 1;
+
+		freqA = (fromRadioChip[0] & 0x3F) <<8 | (fromRadioChip[1]);
+		frequency = ((freqA*8192)-225000) / 10000;
 	}
-	return 0;
+	Serial.print("New frequency from device: ");
+	Serial.println(freqA);
+	Serial.print("New frequency efrom devic: ");
+	Serial.println(frequency);
+	Serial.print("ready: ");
+	Serial.println(ready);
 }
-void TEA5767::WriteData(){
+void TEA5767::writeData(){
 	digitalWrite(13, 1);
 	Wire.beginTransmission(0x60);
 	for(char i = 0; i < DATA_SIZE; i++)
@@ -77,9 +82,9 @@ bool TEA5767::checkEnd(){
 
 void TEA5767::restartScan(){
 	// default to top of band
-	int startFeq = TEA5767_FM_BAND_START
+	int startFeq = TEA5767_FM_BAND_START;
 	if (scanDir){
-		startFeq = TEA5767_FM_BAND_END
+		startFeq = TEA5767_FM_BAND_END;
 	}
 	unsigned int frequencyB  = 4 * (startFeq * 10000 + 225000) / 32768;
 	readData();
@@ -87,7 +92,7 @@ void TEA5767::restartScan(){
 	TEA5767_buffer[1] = frequencyB & 0xFF;
 	// set search level to mid, direction based on the input direction (0-down, 1-up), stoplevel mid, set HLSI big
 	TEA5767_buffer[2] = (scanDir << 7) | TEA5767_WBYTE3_SEARCHSTOPLEVEL_MID | TEA5767_WBYTE3_HLSI;
-	TEA5767_buffer[3] = TEA5767_buffer; // don't change this big, nothing special to cheange
+	TEA5767_buffer[3] = TEA5767_buffer[3]; // don't change this big, nothing special to cheange
 	TEA5767_buffer[4] = 0x00;
 	writeData();
 }

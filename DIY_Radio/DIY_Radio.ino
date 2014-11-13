@@ -6,14 +6,22 @@
 
 // Custom classes and objects
 TEA5767 radio;
-RGBHex  ledArray;
+// RGBHex  ledArray;
 Mode    currentMode;
 
 // objecs from library
 ClickEncoder *encoder;
 
 // Radio variables
-int16_t last,frequency = 9910;
+int16_t lastFrequency,frequency = 9910;
+int16_t velocity = 0;
+byte old_mute=1;
+byte mute=0;
+long loopnum = 0;
+byte old_signal_level=1;
+byte signal_level=0;
+bool startedScanning = false;
+bool canSetFrequency = true;
 
 //LED variables
 volatile int count = 0;
@@ -23,19 +31,22 @@ void timerIsr() {
     encoder->service();
 }
 
-ISR(TIMER2_COMPA_vect){ // will happen at ~100 Hz (100.16025641) (16000000 /1024/156) [clock / prescaler / count]
-    count = count > 100 ? 0: count+1;
+
+ISR(TIMER2_COMPA_vect){ // should happen at ~100 hz (16000000 /1024/156) [clock / prescaler / count]
+    count = count>100?0: count+1;
     if (count == 0)
         LED_SWITCH; // switch the LED every second
 
-    if (radio.isScanning && count % 20){ // if the radio is scanning, check for end of band and/or found station 5 times per second
-        ledArray.updateRotation();
+    if (radio.isScanning && count ==0){ // if the radio is scanning, check for end of band and/or found station 6 times per second
+        // ledArray.updateRotation();
         if(radio.checkEnd()) { // if the end of the band has been reached
             radio.restartScan(); // restart the scan (from top or bottom, TBD by function)
         }
-        else if (radio.ready){ // if the station has been found (just updated data from radio.checkEnd())
+        else if (radio.ready){ // if the station has been found (just updated data from the if statement)
+            Serial.println("frequency is found!");
             radio.stopScanning();
         }
+        // set this frequency to frequency from chip
     }
 }
 
@@ -48,11 +59,13 @@ void setup() {
 
     //pinmode settings
     pinMode(ledPin, OUTPUT);
+    pinMode(8, OUTPUT);
     pinMode(BLUETOOTH_FET, OUTPUT);
     pinMode(SPEAKER_FET, OUTPUT);
     pinMode(RADIO_FET, OUTPUT);
     pinMode(AMP_FET, OUTPUT);
-    last = -1;
+
+    lastFrequency = -1;
 
     // setup timer2 for interrupt to blink or rotate
     cli(); // disable global interrupts 
@@ -70,28 +83,54 @@ void setup() {
 }
 
 void loop() {
-    frequency += encoder->getValue();    
+    velocity = encoder->getValue();
+    frequency += velocity;
+    if (startedScanning && velocity == 0){
+        canSetFrequency = true;
+    }
+    
+    
     ClickEncoder::Button b = encoder->getButton();
     switch (b) {
+        case ClickEncoder::Open:
+            if (frequency != lastFrequency) {
+                if (frequency < 8750){
+                    frequency = 10800;
+                }
+                else if (frequency > 10800){
+                    frequency = 8750;
+                }
+                lastFrequency = frequency;
+                Serial.print("New frequency: ");
+                Serial.println(frequency);
+                radio.setFrequency(frequency);
+            }
+            break;
         case ClickEncoder::Clicked:
-            Serial.println("Button: Pressed");
             Serial.print("Signal Level is: ");
             Serial.println(radio.getSignal());
             break;
         case ClickEncoder::Held:
-            Serial.println("Button: Held")
-            if (frequency != last) {
-                // put scanning code in here
-                if (frequency > last){
-                    radio.scan(1);// scan up
+            // Serial.println("Button: HELD");
+            if (frequency != lastFrequency && !startedScanning){
+                canSetFrequency = false;
+                Serial.println("Should scan!");
+                startedScanning = true;
+                if (frequency > lastFrequency){
+                    Serial.println("Scan Up!");
+                    radio.scan(1);
                 }
                 else{
-                    radio.scan(0);// scan down
+                    Serial.println("Scan Down!");
+                    radio.scan(0);
                 }
+                delay(1000);
             }
             break;
         case ClickEncoder::Released:
-            Serial.println("Button: Released");
+            startedScanning = false;
+            radio.readData();
+            frequency = lastFrequency = radio.getFrequency();
             break;
         case ClickEncoder::DoubleClicked:
             Serial.println("ClickEncoder::DoubleClicked");
@@ -102,44 +141,30 @@ void loop() {
             Serial.print("Changed to: ");
             Serial.println(currentMode);
             break;
-        case ClickEncoder::Open:
-            if (frequency != last) {
-                if (frequency < 8750){
-                    frequency = 10800;
-                }
-                else if (frequency > 10800){
-                    frequency = 8750;
-                }
-                last = frequency;
-                Serial.print("New frequency: ");
-                Serial.println(frequency);
-                radio.SetFrequency(frequency);
-            }
-            break;
     }
 }
 
 void cycleMode(){
     switch (currentMode) {
-        case standby:
-            currentMode = radio;
-            // turn amplifier on
-            digitalWrite(AMP_FET, ON);
+        case Standby:
+            currentMode = Radio;
+            // turn amplifier pn
             radio.unstandby();// turn radio on
             break;
-        case radio:
-            currentMode = bluetooth;
+        case Radio:
+            currentMode = Bluetooth;
             radio.standby();
             digitalWrite(BLUETOOTH_FET, ON);
             // turn bluetooth on
+            digitalWrite(BLUETOOTH_FET, HIGH);
             break;
-        case bluetooth:
-            currentMode = aux;
-            digitalWrite(BLUETOOTH_FET, OFF);
-            // turn bluetooth off, aux will just use amplifier
+        case Bluetooth:
+            currentMode = Aux;
+            // turn bluetooth off
+            digitalWrite(BLUETOOTH_FET, LOW);
             break;
-        case aux:
-            currentMode = standby;
+        case Aux:
+            currentMode = Standby;
             // turn amplifier off
             digitalWrite(AMP_FET, ON);
             break;

@@ -11,26 +11,26 @@ private:
 	int frequency;
 	unsigned char signal_level;
 	unsigned char stereo;
-    bool ready;
     bool bandLimit;
     bool scanDir;
 public:
     bool isScanning;
+    bool ready;
 	TEA5767();
 	void setFrequency(int infreq);
     void standby();
     void unstandby();
-	void WriteData();
+	void writeData();
     void scan(bool direction);
     void restartScan();
     bool checkEnd();
-	char readData();
+	void readData();
 	
 	unsigned char* getBuffer() {return TEA5767_buffer;};
 	unsigned char getStereo() {return stereo;};
 	unsigned char getSignal() {radio.ReadData(); return signal_level;};
 	int getFrequency() {return frequency;};
-	void setFrequency(int infreq) {frequency = infreq;};
+    void stopScanning() {isScanning = false;};
 };
 
 
