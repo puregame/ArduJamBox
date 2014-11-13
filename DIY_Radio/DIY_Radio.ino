@@ -7,7 +7,7 @@
 
 // Custom classes and objects
 TEA5767 radio;
-RGBHex  ledArray;
+// RGBHex  ledArray;
 Mode currentMode;
 
 // objecs from library
@@ -30,13 +30,13 @@ void timerIsr() {
     encoder->service();
 }
 
-isr(TIMER2_COMPA_vect){ // should happen at ~60 hz (16000000 /1024/256) [clock / prescaler / count]
-    count = count>60?0: count+1;
+ISR(TIMER2_COMPA_vect){ // should happen at ~60 hz (16000000 /1024/256) [clock / prescaler / count]
+    count = count>100?0: count+1;
     if (count == 0)
         LED_SWITCH; // switch the LED every second
 
     if (radio.isScanning && count % 10){ // if the radio is scanning, check for end of band and/or found station 6 times per second
-        ledArray.updateRotation();
+        // ledArray.updateRotation();
         if(radio.checkEnd()) { // if the end of the band has been reached
             radio.restartScan(); // restart the scan (from top or bottom, TBD by function)
         }
@@ -47,7 +47,7 @@ isr(TIMER2_COMPA_vect){ // should happen at ~60 hz (16000000 /1024/256) [clock /
 }
 
 void setup() {
-    Serial.begin(9600);
+    Serial.begin(115200);
     encoder = new ClickEncoder(A1, A0, A2);
     Wire.begin();
     Timer1.initialize(1000);
@@ -55,6 +55,7 @@ void setup() {
 
     //pinmode settings
     pinMode(ledPin, OUTPUT);
+    pinMode(8, OUTPUT);
     pinMode(BLUETOOTH_FET, OUTPUT);
     pinMode(SPEAKER_FET, OUTPUT);
     pinMode(RADIO_FET, OUTPUT);
@@ -67,8 +68,9 @@ void setup() {
     TCCR2B = 0; // reset control regesters
     TCCR2A = 0;
 
-    OCR2A = 0xFF; // will count all the way up to 255 before tripping the interrupt
-    TCCR2B |= (1 << WGM22)
+    OCR2A = 156; // will count all the way up to 255 before tripping the interrupt
+    TCCR2B |= (1 << WGM22);
+    TCCR2B |= (1 << WGM21)|(1 << WGM20);
     TCCR2B |= (1 << CS22); // timer2 1024 prescalar
     TCCR2B |= (1 << CS21);
     TCCR2B |= (1 << CS20);
@@ -89,7 +91,7 @@ void loop() {
         last = frequency;
         Serial.print("New frequency: ");
         Serial.println(frequency);
-        radio.SetFrequency(frequency);
+        radio.setFrequency(frequency);
     }
     
     ClickEncoder::Button b = encoder->getButton();
@@ -99,7 +101,7 @@ void loop() {
         switch (b) {
             case ClickEncoder::Clicked:
                 Serial.println("pressed!");
-                radio.ReadData();
+                radio.readData();
                 Serial.print("Signal Level is: ");
                 Serial.println(radio.getSignal());
                 break;
@@ -117,22 +119,22 @@ void loop() {
 
 void cycleMode(){
     switch (currentMode) {
-        case standby:
-            currentMode = radio;
+        case Standby:
+            currentMode = Radio;
             // turn amplifier pn
             radio.unstandby();// turn radio on
             break;
-        case radio:
-            currentMode = bluetooth;
+        case Radio:
+            currentMode = Bluetooth;
             radio.standby();
             // turn bluetooth on
             break;
-        case bluetooth:
-            currentMode = aux;
+        case Bluetooth:
+            currentMode = Aux;
             // turn bluetooth off, l
             break;
-        case aux:
-            currentMode = standby;
+        case Aux:
+            currentMode = Standby;
             // turn amplifier off
             break;
     }
