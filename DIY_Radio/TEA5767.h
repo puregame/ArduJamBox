@@ -2,9 +2,9 @@
 #define _TEA5767_H_
 
 #define DATA_SIZE 5
-
 class TEA5767
 {
+
 private:
 	unsigned char TEA5767_buffer[5];
 	unsigned char fromRadioChip[5];
