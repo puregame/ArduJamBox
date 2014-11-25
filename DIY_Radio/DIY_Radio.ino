@@ -52,20 +52,22 @@ ISR(TIMER2_COMPA_vect){ // should happen at ~100 hz (16000000 /1024/156) [clock 
 }
 
 void setup() {
+     //pinmode settings
+    pinMode(ledPin, OUTPUT);
+    pinMode(8, OUTPUT);
+    pinMode(BLUETOOTH_FET, OUTPUT);
+    digitalWrite(BLUETOOTH_FET, LOW);
+    pinMode(SPEAKER_FET, OUTPUT);
+    pinMode(RADIO_FET, OUTPUT);
+    pinMode(AMP_FET, OUTPUT);
+
     Serial.begin(115200);
     encoder = new ClickEncoder(A1, A0, A2);
     Wire.begin();
     Timer1.initialize(1000); // run timerIsr every 1ms
     Timer1.attachInterrupt(timerIsr); 
     readFreq();
-    //pinmode settings
-    pinMode(ledPin, OUTPUT);
-    pinMode(8, OUTPUT);
-    pinMode(BLUETOOTH_FET, OUTPUT);
-    digitalWrite(BLUETOOTH_FET, HIGH);
-    pinMode(SPEAKER_FET, OUTPUT);
-    pinMode(RADIO_FET, OUTPUT);
-    pinMode(AMP_FET, OUTPUT);
+   
 
     lastFrequency = -1;
 
@@ -146,6 +148,7 @@ void loop() {
 }
 
 void cycleMode(){
+    writeMode();
     switch (currentMode) {
         // case Standby:
         //     currentMode = Radio;
@@ -175,10 +178,34 @@ void cycleMode(){
 }
 
 void writeFreq(){
-    EEPROM.write(0, frequency & 0xFF);
-    EEPROM.write(1, frequency>>8);
+    EEPROM.write(0, frequency & 0xFF); // write the low side fo the number
+    EEPROM.write(1, frequency>>8);     // write the high side of the number
 }
 
 void readFreq(){
-    frequency = (EEPROM.read(1) << 8) | (EEPROM.read(0) & 0xFF); 
+    frequency = (EEPROM.read(1) << 8) | (EEPROM.read(0) & 0xFF);  // read and parse the number
+}
+
+void writeMode(){
+    switch (currentMode) {
+        case Radio:
+          EEPROM.write(3, 0);
+          break;
+        case Bluetooth:
+          EEPROM.write(3,1);
+          break;
+    }
+    EEPROM.write(3, currentMode);
+}
+
+void readMode(){
+    byte input = EEPROM.read(3);
+    switch (input) {
+        case 1:
+          currentMode = Radio;
+          break;
+      case 0:
+          currentMode = Bluetooth;
+          break;
+    }
 }
