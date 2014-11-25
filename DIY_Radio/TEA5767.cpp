@@ -21,7 +21,7 @@ void TEA5767::standby(){
 }
 
 void TEA5767::unstandby(){
-	TEA5767_buffer[3] &= !TEA5767_WBYTE4_STANDBY; //turn only standby bit off
+	TEA5767_buffer[3] &= ~TEA5767_WBYTE4_STANDBY; //turn only standby bit off
 	writeData();
 }
 

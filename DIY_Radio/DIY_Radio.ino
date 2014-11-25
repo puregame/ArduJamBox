@@ -2,18 +2,19 @@
 #include "TEA5767.h"
 #include "DIY_Radio.h"
 #include <Wire.h>
+#include <EEPROM.h>
 #include "TimerOne.h"
 
 // Custom classes and objects
 TEA5767 radio;
 // RGBHex  ledArray;
-Mode    currentMode;
+Mode    currentMode = Radio;
 
 // objecs from library
 ClickEncoder *encoder;
 
 // Radio variables
-int16_t lastFrequency,frequency = 9910;
+int16_t lastFrequency,frequency = 9532;
 int16_t velocity = 0;
 byte old_mute=1;
 byte mute=0;
@@ -23,7 +24,7 @@ byte signal_level=0;
 bool startedScanning = false;
 bool canSetFrequency = true;
 
-//LED variables
+//LED variables 
 volatile int count = 0;
 
 //Interrupt Service Routines
@@ -56,11 +57,12 @@ void setup() {
     Wire.begin();
     Timer1.initialize(1000); // run timerIsr every 1ms
     Timer1.attachInterrupt(timerIsr); 
-
+    readFreq();
     //pinmode settings
     pinMode(ledPin, OUTPUT);
     pinMode(8, OUTPUT);
     pinMode(BLUETOOTH_FET, OUTPUT);
+    digitalWrite(BLUETOOTH_FET, HIGH);
     pinMode(SPEAKER_FET, OUTPUT);
     pinMode(RADIO_FET, OUTPUT);
     pinMode(AMP_FET, OUTPUT);
@@ -104,6 +106,7 @@ void loop() {
                 Serial.print("New frequency: ");
                 Serial.println(frequency);
                 radio.setFrequency(frequency);
+                writeFreq();
             }
             break;
         case ClickEncoder::Clicked:
@@ -134,39 +137,48 @@ void loop() {
             break;
         case ClickEncoder::DoubleClicked:
             Serial.println("ClickEncoder::DoubleClicked");
-            encoder->setAccelerationEnabled(!encoder->getAccelerationEnabled());
-            Serial.print("  Acceleration is ");
-            Serial.println((encoder->getAccelerationEnabled()) ? "enabled" : "disabled");
+            // encoder->setAccelerationEnabled(!encoder->getAccelerationEnabled());
+            // Serial.print("  Acceleration is ");
+            // Serial.println((encoder->getAccelerationEnabled()) ? "enabled" : "disabled");
             cycleMode();
-            Serial.print("Changed to: ");
-            Serial.println(currentMode);
             break;
     }
 }
 
 void cycleMode(){
     switch (currentMode) {
-        case Standby:
-            currentMode = Radio;
-            // turn amplifier pn
-            radio.unstandby();// turn radio on
-            break;
+        // case Standby:
+        //     currentMode = Radio;
+        //     // turn amplifier pn
+        //     radio.unstandby();// turn radio on
+        //     break;
         case Radio:
             currentMode = Bluetooth;
+            Serial.println("Changed to bluetooth");
             radio.standby();
-            digitalWrite(BLUETOOTH_FET, ON);
+            BLUETOOTH_ON 
             // turn bluetooth on
-            digitalWrite(BLUETOOTH_FET, HIGH);
             break;
         case Bluetooth:
-            currentMode = Aux;
+            currentMode = Radio;
+            Serial.println("Changed to radio");
+            radio.unstandby();
             // turn bluetooth off
-            digitalWrite(BLUETOOTH_FET, LOW);
+            BLUETOOTH_OFF
             break;
-        case Aux:
-            currentMode = Standby;
-            // turn amplifier off
-            digitalWrite(AMP_FET, ON);
-            break;
+        // case Aux:
+        //     currentMode = Standby;
+        //     // turn amplifier off
+        //     digitalWrite(AMP_FET, ON);
+        //     break;
     }
+}
+
+void writeFreq(){
+    EEPROM.write(0, frequency & 0xFF);
+    EEPROM.write(1, frequency>>8);
+}
+
+void readFreq(){
+    frequency = (EEPROM.read(1) << 8) | (EEPROM.read(0) & 0xFF); 
 }

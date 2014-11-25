@@ -16,9 +16,9 @@ enum Mode{
   // # A5: CLK - back on pcb
 
 #define RADIO_FET     5
-#define BLUETOOTH_FET 6
-#define SPEAKER_FET   7
-#define AMP_FET       8
+#define BLUETOOTH_FET 7
+#define SPEAKER_FET   6
+#define AMP_FET       5
 #define ledPin        13
 
 #define LED_HEX_ID    0x01
@@ -28,6 +28,11 @@ enum Mode{
 #define OFF LOW
 #define on HIGH
 #define ON HIGH
+
+#define BLUETOOTH_PIN_MASK B10000000 // on port d7
+#define BLUETOOTH_ON PORTD |= BLUETOOTH_PIN_MASK;
+#define BLUETOOTH_OFF  PORTD &= ~BLUETOOTH_PIN_MASK;
+#define BLUETOOTH_SWITCH PORTD ^= BLUETOOTH_PIN_MASK;
 
 #define LED_PIN_MASK   B00000001
 #define LED_SWITCH PORTB ^= LED_PIN_MASK;

@@ -28,7 +28,7 @@ public:
 	
 	unsigned char* getBuffer() {return TEA5767_buffer;};
 	unsigned char getStereo() {return stereo;};
-	unsigned char getSignal() {radio.ReadData(); return signal_level;};
+	unsigned char getSignal() {readData(); return signal_level;};
 	int getFrequency() {return frequency;};
     void stopScanning() {isScanning = false;};
 };
