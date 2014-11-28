@@ -88,16 +88,12 @@ void setup() {
 
 void loop() {
     velocity = encoder->getValue();
-    frequency += velocity;
-    if (startedScanning && velocity == 0){
-        canSetFrequency = true;
-    }
-    
+    frequency += velocity;    
     
     ClickEncoder::Button b = encoder->getButton();
     switch (b) {
         case ClickEncoder::Open:
-            if (frequency != lastFrequency) {
+            if (frequency != lastFrequency && canSetFrequency) {
                 if (frequency < 8750){
                     frequency = 10800;
                 }
@@ -117,25 +113,28 @@ void loop() {
             break;
         case ClickEncoder::Held:
             // Serial.println("Button: HELD");
-            if (frequency != lastFrequency && !startedScanning){
+            // update the velocity of the encoder
+            if (velocity != 0 && !startedScanning){
                 canSetFrequency = false;
                 Serial.println("Should scan!");
                 startedScanning = true;
-                if (frequency > lastFrequency){
+                if (velocity > 0){
                     Serial.println("Scan Up!");
                     radio.scan(1);
                 }
-                else{
+                else{ // velocity < 0
                     Serial.println("Scan Down!");
                     radio.scan(0);
                 }
                 delay(1000);
             }
+            //else continue scanning
             break;
         case ClickEncoder::Released:
-            startedScanning = false;
+            startedScanning = false; // no longer scanning
+            canSetFrequency = true;  // user can now manually set the frequency
             radio.readData();
-            frequency = lastFrequency = radio.getFrequency();
+            frequency = lastFrequency = radio.getFrequency(); // set the new found frequency
             break;
         case ClickEncoder::DoubleClicked:
             Serial.println("ClickEncoder::DoubleClicked");
@@ -178,7 +177,7 @@ void cycleMode(){
 }
 
 void writeFreq(){
-    EEPROM.write(0, frequency & 0xFF); // write the low side fo the number
+    EEPROM.write(0, frequency & 0xFF); // write the low side of the number
     EEPROM.write(1, frequency>>8);     // write the high side of the number
 }
 

@@ -10,6 +10,8 @@ For FM connectivity the project uses the incredibly cheap and ever useful TEA576
 
 For bluetooth connectivity the project uses a simple bluetooth module, I got mine from ebay for about $5, it has a USB on one end and a 3.5mm jack on the other. Any module with matching description will do.
 
+An auxilary jack is also very easy to integrate, since 
+
 ### Other Parts:
 1. DIY arduino (any arduino will do):
 	- Atmega328P
